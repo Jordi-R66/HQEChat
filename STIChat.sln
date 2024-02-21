@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "STIChat", "STIChat.csproj", "{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{11DDE448-27A4-41AF-B74E-CCDE40A5DE06}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Publication|Any CPU = Publication|Any CPU
+		Publication|x64 = Publication|x64
+		Publication|x86 = Publication|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Debug|x64.ActiveCfg = Debug|x64
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Debug|x64.Build.0 = Debug|x64
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Debug|x86.ActiveCfg = Debug|x86
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Debug|x86.Build.0 = Debug|x86
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Publication|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Publication|Any CPU.Build.0 = Debug|Any CPU
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Publication|x64.ActiveCfg = Publication|x64
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Publication|x64.Build.0 = Publication|x64
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Publication|x86.ActiveCfg = Publication|x86
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Publication|x86.Build.0 = Publication|x86
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Release|x64.ActiveCfg = Release|x64
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Release|x64.Build.0 = Release|x64
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Release|x86.ActiveCfg = Release|x86
+		{FE08D96C-7DE5-4CB2-9D17-057E7FA3EEDB}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FFC9AB47-FC02-43B9-BB4F-676B5BAAE53B}
+	EndGlobalSection
+EndGlobal
