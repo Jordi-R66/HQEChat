@@ -5,12 +5,14 @@ using System.Text;
 namespace STIChat {
 	public class Server {
 		private Int16 RemoteClients = -1;
-		internal struct RemoteClient {
+		public class RemoteClient {
 			public string Username;
-			public IPAddress RemoteIP;
+			public IPAddress? RemoteIP;
 
 			public Socket SocketObj;
 			public readonly Int16 ID;
+
+			internal List<Int16> BlockedClients = new List<Int16>(); // IDs des clients bloqués
 
 			public RemoteClient(string username, Socket handler, Int16 id) {
 				this.Username = username;
@@ -20,6 +22,8 @@ namespace STIChat {
 
 				if (handler.RemoteEndPoint is IPEndPoint endPoint) {
 					this.RemoteIP = endPoint.Address;
+				} else {
+					this.RemoteIP = null;
 				}
 			}
 
@@ -44,6 +48,7 @@ namespace STIChat {
 		}
 
 		public string? ReceiveMessage(Socket handler) {
+			/* Recevoir un message sans objet client */
 			if (listener != null) {
 
 				byte[] buffer = new byte[1024];
@@ -63,6 +68,16 @@ namespace STIChat {
 			return null;
 		}
 
+		internal string? ReceiveMessage(RemoteClient? remoteClient=null) {
+			/* Recevoir un message avec un objet client */
+			if (remoteClient != null) {
+
+				Socket handler = remoteClient.SocketObj;
+				string? message = ReceiveMessage(handler);
+			}
+			return null;
+		}
+
 		private void AcceptNewConnections() {
 			listener = new(ServerEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 			listener.Bind(ServerEndPoint);
@@ -77,6 +92,7 @@ namespace STIChat {
 						if (!String.IsNullOrEmpty(username)) {
 							RemoteClient remoteClient = new RemoteClient(username, handler, ++RemoteClients);
 							DictConnectedClients.Add(RemoteClients, remoteClient);
+							// L'objet client est ajouté au dictionnaire des clients connectés afin d'intéragir avec dans les autres fonctions
 						} else {
 							handler.Close();
 						}
@@ -85,14 +101,19 @@ namespace STIChat {
 			}
 		}
 
+		void InterpretCommands(string message) {
+			// WIP
+		}
+
 		private void CommsManager() {
 			string? message;
 			while (true) {
 				foreach (KeyValuePair<Int16, RemoteClient> kvp in DictConnectedClients) {
-					Int16 remoteId = kvp.Key;
+					Int16 remoteId = kvp.Key; // Clé unique associée à un client connecté
 					RemoteClient remoteClient = kvp.Value;
-					Socket handler = remoteClient.SocketObj;
-					message = ReceiveMessage(handler);
+
+					message = ReceiveMessage(remoteClient);
+
 					if (message != null && message.Length > 0) {
 						message = Fonctions_Utiles.RemoveSequencesFromMessage(message);
 						if (message.Length > 0) {
@@ -106,6 +127,9 @@ namespace STIChat {
 		public void Run() {
 			Thread ListenerThread = new Thread(AcceptNewConnections);
 			Thread MessagesManager = new Thread(CommsManager);
+
+			ListenerThread.Start();
+			MessagesManager.Start();
 		}
 	}
 }
