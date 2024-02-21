@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-namespace STIChat {
+namespace HQEChat {
 	static public class Constantes {
 		static public readonly ushort PORT = 11_107;
 		static public readonly string som_sequence = "<|SOM|>"; // START OF MESSAGE

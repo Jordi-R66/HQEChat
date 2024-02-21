@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-namespace STIChat {
+namespace HQEChat {
 	public class Server {
 		private Int16 RemoteClients = -1;
 		public class RemoteClient {

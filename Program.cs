@@ -1,4 +1,4 @@
-﻿namespace STIChat {
+﻿namespace HQEChat {
 	static internal class Program {
 		public static void Main() {
 			string? choice_entry;

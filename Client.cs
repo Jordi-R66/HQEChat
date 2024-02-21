@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-namespace STIChat {
+namespace HQEChat {
 	class ClientCommands {
 		public static readonly string quit = "quit";
 
