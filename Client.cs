@@ -13,13 +13,15 @@ namespace STIChat {
 		readonly IPEndPoint ClientEndPoint;
 		private bool ClientStopped = false;
 
+		readonly string Username;
 		readonly IPAddress TargetIpObj;
 		Socket? client;
 
-		public Client(string ip, ushort port) {
+		public Client(string ip, ushort port, string username) {
 			TargetIpObj = IPAddress.Parse(ip);
 
 			ClientEndPoint = new(TargetIpObj, port);
+			this.Username = username;
 		}
 
 		bool SendMessage(string Message) {
@@ -77,6 +79,7 @@ namespace STIChat {
 			client = new(ClientEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
 			client.Connect(ClientEndPoint);
+			SendMessage(this.Username);
 			while (true) {
 				Console.Write("Votre message : ");
 				string? message = Console.ReadLine();
