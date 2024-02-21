@@ -25,23 +25,43 @@
 				NewServer.Run();
 
 			} else if (( choice == 'C' ) || ( choice == 'c' )) {
-				Console.WriteLine("IP du serveur : ");
-				string? ip_entry = Console.ReadLine();
-				if (!string.IsNullOrEmpty(ip_entry)) {
-					ip = ip_entry;
-				} else {
-					return;
+				string? ip_entry = null, port_entry = null, username = null;
+				while (string.IsNullOrEmpty(ip_entry) || string.IsNullOrWhiteSpace(ip_entry)) {
+					Console.Clear();
+					Console.WriteLine("IP du serveur : ");
+					ip_entry = Console.ReadLine();
 				}
 
-				Console.WriteLine("Port du serveur : ");
-				string? port_entry = Console.ReadLine();
-				if (string.IsNullOrEmpty(port_entry)) {
-					port_entry = "";
+				while ((string.IsNullOrEmpty(ip_entry)) || (string.IsNullOrWhiteSpace(ip_entry)) || (port_entry == null)) {
+					Console.Clear();
+					Console.WriteLine("Port du serveur : ");
+					port_entry = Console.ReadLine();
+					if ((ip_entry != "" && ip_entry != null) && !(string.IsNullOrWhiteSpace(ip_entry))) {
+						if (port_entry == "default") {
+							port_entry = "";
+							break;
+						}
+						if (( port_entry != null ) && ( port_entry.Length > 0 )) {
+							foreach (char c in port_entry) {
+								if (( c <= '0' ) || ( c >= '9' )) {
+									port_entry = null;
+									break;
+								}
+							}
+						}
+					}
 				}
 
+				while (string.IsNullOrEmpty(username) || string.IsNullOrWhiteSpace(username)) {
+					Console.Clear();
+					Console.WriteLine("Nom d'utilisateur : ");
+					username = Console.ReadLine();
+				}
+
+				ip = ip_entry;
 				ushort port = UInt16.Parse(port_entry);
 
-				Client NewClient = new Client(ip, port);
+				Client NewClient = new Client(ip, port, username);
 				NewClient.Run();
 
 			} else {
