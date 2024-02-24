@@ -2,7 +2,6 @@
 using System.Net.Sockets;
 using System.Text;
 
-// Just a little test for branches
 
 namespace HQEChat {
 	public class Server {
