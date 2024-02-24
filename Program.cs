@@ -1,5 +1,33 @@
 ﻿namespace HQEChat {
 	static internal class Program {
+		internal static string? SelectIP() {
+			string return_val;
+			while (true) {
+				List<string> IPList = Fonctions_Utiles.GetAvailableIPs();
+				Console.Clear();
+				for (int i = 0; i < IPList.Count; i++) {
+					string ip = IPList[i];
+					Console.WriteLine($"[i] : {ip}");
+				}
+
+				Console.Write("\nIP à utiliser (numéro uniquement): ");
+				string? entry = Console.ReadLine();
+				if (entry != null && entry.Length != 0) {
+					foreach (char c in entry) {
+						if ((c < 48) || (c > 57)) {
+							entry = entry.Replace(c.ToString(), "");
+						}
+					}
+					Int32 n = Int32.Parse(entry);
+					if (n < IPList.Count) {
+						return_val = IPList[n];
+						break;
+					}
+				}
+			}
+			return return_val;
+		}
+
 		public static void Main() {
 			string? choice_entry;
 			char? choice = null;
