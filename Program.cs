@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace HQEChat {
+﻿namespace HQEChat {
 	static internal class Program {
 		internal static string SelectIP() {
 			string return_val = Fonctions_Utiles.GetLocalIPAddress();
