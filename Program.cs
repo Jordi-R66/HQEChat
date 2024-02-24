@@ -3,9 +3,9 @@
 		internal static string SelectIP() {
 			string return_val = Fonctions_Utiles.GetLocalIPAddress();
 
-			bool useLoop = (return_val == "") ? true : false;
+			bool goThroughLoop = (return_val == "") ? true : false;
 
-			while (useLoop) {
+			while (goThroughLoop) {
 				List<string> IPList = Fonctions_Utiles.GetAvailableIPs();
 				Console.Clear();
 				for (int i = 0; i < IPList.Count; i++) {
