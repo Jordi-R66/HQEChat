@@ -18,9 +18,9 @@ namespace HQEChat {
 		Socket? client;
 
 		public Client(string ip, ushort port, string username) {
-			TargetIpObj = IPAddress.Parse(ip);
+			this.TargetIpObj = IPAddress.Parse(ip);
 
-			ClientEndPoint = new(TargetIpObj, port);
+			this.ClientEndPoint = new(TargetIpObj, port);
 			this.Username = username;
 		}
 
@@ -42,9 +42,9 @@ namespace HQEChat {
 			return HasBeenSent;
 		}
 
-		bool StopClient() {
+		bool StopClient(bool warn=true) {
 			if (client != null) {
-				bool canLeave = SendMessage(Constantes.eoc_sequence);
+				bool canLeave = warn ? SendMessage(Constantes.eoc_sequence) : false;
 				if (canLeave) {
 					client.Disconnect(false);
 					client.Dispose();
@@ -79,7 +79,11 @@ namespace HQEChat {
 			client = new(ClientEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
 			client.Connect(ClientEndPoint);
-			SendMessage(this.Username);
+			bool UsernameSent = SendMessage(this.Username);
+			if (!UsernameSent) {
+				StopClient();
+				return false;
+			}
 			while (true) {
 				Console.Write("Votre message : ");
 				string? message = Console.ReadLine();

@@ -10,7 +10,7 @@ namespace HQEChat {
 		static public readonly string ack_sequence = "<|ACK|>"; // ACKNOWLEDGEMENT
 		static public readonly string cmd_sequence = "<|CMD|>"; // COMMAND
 		static public readonly string prv_sequence = "<|PRV|>"; // PRIVATE MESSAGE
-		static public readonly string eoc_sequence = "<|EOC|>"; // END OF COMMUNICATION
+		static public readonly string eoc_sequence = "<|EOC|>"; // END OF CONNECTION
 
 		static public readonly byte[] ackBytes = Encoding.Unicode.GetBytes(ack_sequence);
 
