@@ -44,7 +44,7 @@ namespace HQEChat {
 
 		bool StopClient(bool warn=true) {
 			if (client != null) {
-				bool canLeave = warn ? SendMessage(Constantes.eoc_sequence) : false;
+				bool canLeave = (warn) ? SendMessage(Constantes.eoc_sequence) : false;
 				if (canLeave) {
 					client.Disconnect(false);
 					client.Dispose();
@@ -69,7 +69,7 @@ namespace HQEChat {
 
 				if (ClientCommands.commands.Contains(command)) {
 					if (command == ClientCommands.quit) {
-						StopClient();
+						StopClient(true);
 					}
 				}
 			}
@@ -81,7 +81,7 @@ namespace HQEChat {
 			client.Connect(this.ClientEndPoint);
 			bool UsernameSent = SendMessage(this.Username);
 			if (!UsernameSent) {
-				StopClient();
+				StopClient(false);
 				return false;
 			}
 			while (true) {
