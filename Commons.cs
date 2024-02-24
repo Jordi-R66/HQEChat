@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 
@@ -18,6 +19,28 @@ namespace HQEChat {
 	}
 
 	static public class Fonctions_Utiles {
+		static public List<string> GetAvailableIPs() {
+			List<string> AvailableIPs = new List<string>();
+
+			NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+			foreach (NetworkInterface networkInterface in networkInterfaces) {
+				// Ignore les interfaes de bouclage et les interfaces non-connectées
+				if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback || 
+					networkInterface.OperationalStatus == OperationalStatus.Down) {
+					continue;
+				}
+
+				IPInterfaceProperties ipProps = networkInterface.GetIPProperties();
+
+				foreach (UnicastIPAddressInformation IP in ipProps.UnicastAddresses) {
+					AvailableIPs.Add(IP.Address.ToString());
+				}
+			}
+
+			return AvailableIPs;
+		}
+
 		static public string GetLocalIPAddress() {
 			string hostname = Dns.GetHostName();
 
