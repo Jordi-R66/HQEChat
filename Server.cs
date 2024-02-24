@@ -65,7 +65,30 @@ namespace HQEChat {
 						handler.Shutdown(SocketShutdown.Both);
 						handler.Close();
 					} else if (response.Contains(Constantes.cmd_sequence)) {
+						// Structure d'une commande :
+						//  <CMD> cmdId arg
 						InterpretCommands(response.Replace(Constantes.cmd_sequence, ""));
+					} else if (response.Contains(Constantes.prv_sequence)) {
+						// Structure d'un message privé :
+						//	<PRV> senderId destId message
+						response = response.Replace($"{Constantes.prv_sequence} ", "");
+						string[] SplitResponse = response.Split(" ");
+
+						if (SplitResponse.Length > 2) {
+							Int16 senderId, destId;
+
+							senderId = Int16.Parse(SplitResponse[0]);
+							destId = Int16.Parse(SplitResponse[1]);
+
+							string message = "";
+
+							for (uint i=2; i < SplitResponse.Length; i++) {
+								message += $" {SplitResponse[i]}";
+							}
+
+							SendPrivate(message, senderId, destId);
+							return null;
+						}
 					}
 
 					return response;
@@ -110,6 +133,32 @@ namespace HQEChat {
 
 		void InterpretCommands(string message) {
 			// WIP
+			return;
+		}
+
+		int SendMessage(string message, Socket destHandler) {
+			int bytesSent = 0;
+
+			byte[] msg_bytes = Encoding.Unicode.GetBytes(message);
+			bytesSent = destHandler.Send(msg_bytes, SocketFlags.None);
+
+			return bytesSent;
+		}
+
+		int SendPrivate(string message, Int16 senderId, Int16 destId) {
+			// WIP
+			int bytesSent = 0;
+
+			if (DictConnectedClients.ContainsKey(senderId) && DictConnectedClients.ContainsKey(destId)) {
+				RemoteClient Sender = DictConnectedClients[senderId], Dest = DictConnectedClients[destId];
+
+				string senderUsername = Sender.Username;
+				Socket destHandler = Dest.SocketObj;
+
+				message = $"DM de {senderUsername} : {message}";
+				bytesSent = SendMessage(message, destHandler);
+			}
+			return bytesSent;
 		}
 
 		private void CommsManager() {
