@@ -20,7 +20,7 @@ namespace HQEChat {
 		public Client(string ip, ushort port, string username) {
 			this.TargetIpObj = IPAddress.Parse(ip);
 
-			this.ClientEndPoint = new(TargetIpObj, port);
+			this.ClientEndPoint = new(this.TargetIpObj, port);
 			this.Username = username;
 		}
 
@@ -76,9 +76,9 @@ namespace HQEChat {
 		}
 
 		public bool Run() {
-			client = new(ClientEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+			client = new(this.ClientEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-			client.Connect(ClientEndPoint);
+			client.Connect(this.ClientEndPoint);
 			bool UsernameSent = SendMessage(this.Username);
 			if (!UsernameSent) {
 				StopClient();
