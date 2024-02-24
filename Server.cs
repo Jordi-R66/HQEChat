@@ -58,11 +58,15 @@ namespace HQEChat {
 
 				if (response.Contains(Constantes.eom_sequence)) {
 					handler.Send(Constantes.ackBytes);
+					response = response.Replace(Constantes.eom_sequence, "");
 					if (response.Contains(Constantes.eoc_sequence)) {
 						handler.Shutdown(SocketShutdown.Both);
 						handler.Close();
+					} else if (response.Contains(Constantes.cmd_sequence)) {
+						InterpretCommands(response.Replace(Constantes.cmd_sequence, ""));
 					}
-					return response.Replace(Constantes.eom_sequence, "");
+
+					return response;
 				}
 			}
 			return null;
@@ -79,6 +83,7 @@ namespace HQEChat {
 		}
 
 		private void AcceptNewConnections() {
+			// Accepte les nouvelles connexions
 			listener = new(ServerEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 			listener.Bind(ServerEndPoint);
 
