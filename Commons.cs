@@ -25,7 +25,7 @@ namespace HQEChat {
 			NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
 
 			foreach (NetworkInterface networkInterface in networkInterfaces) {
-				// Ignore les interfaes de bouclage et les interfaces non-connectées
+				// Ignore les interfaces de bouclage et les interfaces non-connectées
 				if (networkInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback || 
 					networkInterface.OperationalStatus == OperationalStatus.Down) {
 					continue;
@@ -47,12 +47,14 @@ namespace HQEChat {
 			string OutputIP = "";
 
 			IPAddress[] Adresses = Dns.GetHostAddresses(hostname);
+			int compteur = 0;
 			foreach (IPAddress IP in Adresses) {
 				if (IP.AddressFamily == AddressFamily.InterNetwork) {
 					OutputIP = IP.ToString();
+					compteur++;
 				}
 			}
-			return OutputIP;
+			return compteur == 1 ? OutputIP : "";
 		}
 
 		static public string RemoveSequencesFromMessage(string input_string) {
