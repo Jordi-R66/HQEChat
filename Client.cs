@@ -20,7 +20,7 @@ namespace HQEChat {
 		public Client(string ip, ushort port, string username) {
 			this.TargetIpObj = IPAddress.Parse(ip);
 
-			this.ClientEndPoint = new(TargetIpObj, port);
+			this.ClientEndPoint = new(this.TargetIpObj, port);
 			this.Username = username;
 		}
 
@@ -44,7 +44,7 @@ namespace HQEChat {
 
 		bool StopClient(bool warn=true) {
 			if (client != null) {
-				bool canLeave = warn ? SendMessage(Constantes.eoc_sequence) : false;
+				bool canLeave = (warn) ? SendMessage(Constantes.eoc_sequence) : false;
 				if (canLeave) {
 					client.Disconnect(false);
 					client.Dispose();
@@ -69,19 +69,19 @@ namespace HQEChat {
 
 				if (ClientCommands.commands.Contains(command)) {
 					if (command == ClientCommands.quit) {
-						StopClient();
+						StopClient(true);
 					}
 				}
 			}
 		}
 
 		public bool Run() {
-			client = new(ClientEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+			client = new(this.ClientEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-			client.Connect(ClientEndPoint);
+			client.Connect(this.ClientEndPoint);
 			bool UsernameSent = SendMessage(this.Username);
 			if (!UsernameSent) {
-				StopClient();
+				StopClient(false);
 				return false;
 			}
 			while (true) {
