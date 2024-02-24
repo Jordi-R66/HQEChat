@@ -1,13 +1,18 @@
-﻿namespace HQEChat {
+﻿using System.Linq;
+
+namespace HQEChat {
 	static internal class Program {
-		internal static string? SelectIP() {
-			string return_val;
-			while (true) {
+		internal static string SelectIP() {
+			string return_val = Fonctions_Utiles.GetLocalIPAddress();
+
+			bool useLoop = (return_val == "") ? true : false;
+
+			while (useLoop) {
 				List<string> IPList = Fonctions_Utiles.GetAvailableIPs();
 				Console.Clear();
 				for (int i = 0; i < IPList.Count; i++) {
 					string ip = IPList[i];
-					Console.WriteLine($"[i] : {ip}");
+					Console.WriteLine($"[{i}] : {ip}");
 				}
 
 				Console.Write("\nIP à utiliser (numéro uniquement): ");
@@ -22,6 +27,8 @@
 					if (n < IPList.Count) {
 						return_val = IPList[n];
 						break;
+					} else {
+						return_val = "";
 					}
 				}
 			}
@@ -30,23 +37,28 @@
 
 		public static void Main() {
 			string? choice_entry;
-			char? choice = null;
+			char choice;
 
-			while (choice == null) {
+			char[] validChoices = ['S', 's', 'C', 's'];
+
+			while (true) {
 				Console.Clear();
 				Console.WriteLine("S: Créer un serveur\nC: Se connecter à un serveur\n\nEntrez la lettre correspondant à votre choix : ");
 				choice_entry = Console.ReadLine();
 				if (choice_entry != null) {
 					choice = choice_entry[0];
+					if (validChoices.Contains(choice)) {
+						break;
+					}
 				}
 			}
 
-			string? ip;
+			string ip;
 			Console.Clear();
 
-			if (( choice == 'S' ) || ( choice == 's' )) {
-				ip = Fonctions_Utiles.GetLocalIPAddress();
+			ip = SelectIP();
 
+			if (( choice == 'S' ) || ( choice == 's' )) {
 				Console.WriteLine($"Création d'un serveur sur l'ip {ip}...");
 				Server NewServer = new(ip, Constantes.PORT);
 				Console.WriteLine($"Serveur démarré sur {ip}:{Constantes.PORT}");
