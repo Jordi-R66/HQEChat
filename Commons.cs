@@ -34,7 +34,9 @@ namespace HQEChat {
 				IPInterfaceProperties ipProps = networkInterface.GetIPProperties();
 
 				foreach (UnicastIPAddressInformation IP in ipProps.UnicastAddresses) {
-					AvailableIPs.Add(IP.Address.ToString());
+					if (IP.Address.AddressFamily == AddressFamily.InterNetwork) {
+						AvailableIPs.Add(IP.Address.ToString());
+					}
 				}
 			}
 
