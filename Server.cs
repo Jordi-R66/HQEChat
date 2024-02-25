@@ -57,6 +57,7 @@ namespace HQEChat {
 
 		public string ReceiveMessage(Socket handler) {
 			/* Recevoir un message sans objet client */
+
 			string response = "";
 
 			if (listener != null) {
@@ -68,19 +69,27 @@ namespace HQEChat {
 					response = Encoding.Unicode.GetString(buffer, 0, received);
 
 					if (response.Contains(Constantes.eom_sequence)) {
+						
 						handler.Send(Constantes.ackBytes);
 						response = response.Replace(Constantes.eom_sequence, "");
+						response = response.Replace(Constantes.som_sequence, "");
+						
 						if (response.Contains(Constantes.eoc_sequence)) {
+						
 							handler.Shutdown(SocketShutdown.Both);
 							handler.Close();
+
 						} else if (response.Contains(Constantes.cmd_sequence)) {
 							// Structure d'une commande :
-							//  <CMD> cmdId arg
+							//  <|CMD|> cmdId arg
+							
 							InterpretCommands(response.Replace(Constantes.cmd_sequence, ""));
 							response = "";
+
 						} else if (response.Contains(Constantes.prv_sequence)) {
 							// Structure d'un message privé :
-							//	<PRV> senderId destId message
+							//	<|PRV|> senderId destId message
+							
 							response = response.Replace($"{Constantes.prv_sequence} ", "");
 							string[] SplitResponse = response.Split(" ");
 
@@ -133,6 +142,7 @@ namespace HQEChat {
 							RemoteClient remoteClient = new RemoteClient(username, handler, ++RemoteClients);
 							DictConnectedClients.Add(RemoteClients, remoteClient);
 							// L'objet client est ajouté au dictionnaire des clients connectés afin d'intéragir avec dans les autres fonctions
+							Console.WriteLine($"${username} vient d'arriver dans la conversation");
 						} else {
 							handler.Close();
 						}
