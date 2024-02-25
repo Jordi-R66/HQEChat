@@ -58,48 +58,49 @@ namespace HQEChat {
 		public string ReceiveMessage(Socket handler) {
 			/* Recevoir un message sans objet client */
 			string response = "";
+
 			if (listener != null) {
 
 				byte[] buffer = new byte[1024];
 
-				Int32 received = handler.Receive(buffer, SocketFlags.None);
-				response = Encoding.Unicode.GetString(buffer, 0, received);
+				if (handler.Connected) {
+					Int32 received = handler.Receive(buffer, SocketFlags.None);
+					response = Encoding.Unicode.GetString(buffer, 0, received);
 
-				if (response.Contains(Constantes.eom_sequence)) {
-					handler.Send(Constantes.ackBytes);
-					response = response.Replace(Constantes.eom_sequence, "");
-					if (response.Contains(Constantes.eoc_sequence)) {
-						handler.Shutdown(SocketShutdown.Both);
-						handler.Close();
-					} else if (response.Contains(Constantes.cmd_sequence)) {
-						// Structure d'une commande :
-						//  <CMD> cmdId arg
-						InterpretCommands(response.Replace(Constantes.cmd_sequence, ""));
-						response = "";
-					} else if (response.Contains(Constantes.prv_sequence)) {
-						// Structure d'un message privé :
-						//	<PRV> senderId destId message
-						response = response.Replace($"{Constantes.prv_sequence} ", "");
-						string[] SplitResponse = response.Split(" ");
-
-						if (SplitResponse.Length > 2) {
-							Int16 senderId, destId;
-
-							senderId = Int16.Parse(SplitResponse[0]);
-							destId = Int16.Parse(SplitResponse[1]);
-
-							string message = "";
-
-							for (uint i=2; i < SplitResponse.Length; i++) {
-								message += $" {SplitResponse[i]}";
-							}
-
-							SendPrivate(message, senderId, destId);
+					if (response.Contains(Constantes.eom_sequence)) {
+						handler.Send(Constantes.ackBytes);
+						response = response.Replace(Constantes.eom_sequence, "");
+						if (response.Contains(Constantes.eoc_sequence)) {
+							handler.Shutdown(SocketShutdown.Both);
+							handler.Close();
+						} else if (response.Contains(Constantes.cmd_sequence)) {
+							// Structure d'une commande :
+							//  <CMD> cmdId arg
+							InterpretCommands(response.Replace(Constantes.cmd_sequence, ""));
 							response = "";
+						} else if (response.Contains(Constantes.prv_sequence)) {
+							// Structure d'un message privé :
+							//	<PRV> senderId destId message
+							response = response.Replace($"{Constantes.prv_sequence} ", "");
+							string[] SplitResponse = response.Split(" ");
+
+							if (SplitResponse.Length > 2) {
+								Int16 senderId, destId;
+
+								senderId = Int16.Parse(SplitResponse[0]);
+								destId = Int16.Parse(SplitResponse[1]);
+
+								string message = "";
+
+								for (uint i = 2; i < SplitResponse.Length; i++) {
+									message += $" {SplitResponse[i]}";
+								}
+
+								SendPrivate(message, senderId, destId);
+								response = "";
+							}
 						}
 					}
-
-					return response;
 				}
 			}
 			return response;
