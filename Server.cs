@@ -174,7 +174,9 @@ namespace HQEChat {
 
 			while (true) {
 
-				foreach (KeyValuePair<Int16, RemoteClient> kvp in DictConnectedClients) {
+				Dictionary<Int16, RemoteClient> DictConnectedClients_Copy = new Dictionary<Int16, RemoteClient>(DictConnectedClients);
+
+				foreach (KeyValuePair<Int16, RemoteClient> kvp in DictConnectedClients_Copy) {
 					Int16 remoteId = kvp.Key; // Clé unique associée à un client connecté
 					RemoteClient remoteClient = kvp.Value; // Objet de gestion du client distant
 
@@ -186,7 +188,7 @@ namespace HQEChat {
 
 						if (message.Length > 0) {
 							Console.WriteLine($"{remoteClient.Username} : {message}");
-							foreach (RemoteClient destClient in DictConnectedClients.Values) {
+							foreach (RemoteClient destClient in DictConnectedClients_Copy.Values) {
 								if (destClient.ID != remoteId) {
 									SendMessage($"{remoteClient.Username} : {message}", destClient.SocketObj);
 								}
