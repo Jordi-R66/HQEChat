@@ -2,8 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-/*
- * Capacités du Serveur :
+/* Capacités du Serveur :
  *	- Accepter des connexions entrantes : implémenté
  *	- Relais des messages : implémenté
  *	- Messages privés : implémenté
@@ -45,17 +44,16 @@ namespace HQEChat {
 		readonly IPAddress ServerIpObj;
 		Socket? listener;
 
-		//private static List<RemoteClient> ConnectedClients = new List<RemoteClient>();
 		private static Dictionary<Int16, RemoteClient> DictConnectedClients = new Dictionary<Int16, RemoteClient>();
 
 		private static readonly object verrou = new object();
 
 		public Server(string ip, ushort port) {
 			ServerIpObj = IPAddress.Parse(ip);
-			ServerEndPoint = new(ServerIpObj, port);
+			ServerEndPoint = new IPEndPoint(ServerIpObj, port);
 		}
 
-		public string ReceiveMessage(Socket handler, Int16? clientId = null) {
+		public string ReceiveMessage(Socket handler, Int16 clientId = -1) {
 			/* Recevoir un message sans objet client */
 
 			string response = "";
@@ -74,12 +72,15 @@ namespace HQEChat {
 						response = response.Replace(Constantes.eom_sequence, "");
 						response = response.Replace(Constantes.som_sequence, "");
 
-						if (response.Contains(Constantes.eoc_sequence) && clientId != null) {
+						if (response.Contains(Constantes.eoc_sequence) && clientId >= 0) {
 
 							handler.Shutdown(SocketShutdown.Both);
 							handler.Close();
 
-							Console.WriteLine($"{DictConnectedClients[Convert.ToInt16(clientId)].Username} a quitté la conversation");
+							lock (verrou) {
+								Console.WriteLine($"{DictConnectedClients[clientId].Username} a quitté la conversation");
+								DictConnectedClients.Remove(clientId);
+							}
 
 						} else if (response.Contains(Constantes.cmd_sequence)) {
 							// Structure d'une commande :
@@ -144,7 +145,7 @@ namespace HQEChat {
 							RemoteClient remoteClient = new RemoteClient(username, handler, ++RemoteClients);
 							DictConnectedClients.Add(RemoteClients, remoteClient);
 							// L'objet client est ajouté au dictionnaire des clients connectés afin d'intéragir avec dans les autres fonctions
-							Console.WriteLine($"${username} vient d'arriver dans la conversation");
+							Console.WriteLine($"{username} vient d'arriver dans la conversation");
 						} else {
 							handler.Close();
 						}
@@ -162,7 +163,9 @@ namespace HQEChat {
 			Int32 bytesSent = 0;
 
 			byte[] msg_bytes = Encoding.Unicode.GetBytes(message);
-			bytesSent = destHandler.Send(msg_bytes, SocketFlags.None);
+			if (destHandler.Connected) {
+				bytesSent = destHandler.Send(msg_bytes, SocketFlags.None);
+			}
 
 			return bytesSent;
 		}
@@ -176,18 +179,23 @@ namespace HQEChat {
 				string senderUsername = Sender.Username;
 				Socket destHandler = Dest.SocketObj;
 
-				message = $"DM de {senderUsername} : {message}";
+				message = $"MP de {senderUsername} : {message}";
 				bytesSent = SendMessage(message, destHandler);
 			}
+
 			return bytesSent;
 		}
 
 		private void CommsManager() {
 			string? message;
 
-			while (true) {
+			Dictionary<Int16, RemoteClient> DictConnectedClients_Copy = new Dictionary<Int16, RemoteClient>();
 
-				Dictionary<Int16, RemoteClient> DictConnectedClients_Copy = new Dictionary<Int16, RemoteClient>(DictConnectedClients);
+			while (true) {
+				lock (verrou) {
+					DictConnectedClients_Copy.Clear();
+					DictConnectedClients_Copy = new Dictionary<Int16, RemoteClient>(DictConnectedClients);
+				}
 
 				foreach (KeyValuePair<Int16, RemoteClient> kvp in DictConnectedClients_Copy) {
 					Int16 remoteId = kvp.Key; // Clé unique associée à un client connecté
