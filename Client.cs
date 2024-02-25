@@ -6,7 +6,7 @@ using System.Text;
  * Fonctionnalités du Client :
  *	- Envoi de message : implémenté
  *  - Envoi de messages privés : implémenté
- *  - Réception de messages : à faire
+ *  - Réception de messages : implémenté
  *	- Connexion au serveur : implémenté
  *	- Renseignement de l'username : implémenté
  *	- Support des commandes : à faire
@@ -35,7 +35,7 @@ namespace HQEChat {
 			this.Username = username;
 		}
 
-		bool SendMessage(string Message) {
+		internal bool SendMessage(string Message) {
 			bool HasBeenSentAndBeenReceived = false;
 
 			if (client != null) {
@@ -53,7 +53,7 @@ namespace HQEChat {
 			return HasBeenSentAndBeenReceived;
 		}
 
-		string ReceiveMessage() {
+		internal string ReceiveMessage() {
 			string message = "";
 
 			if (client != null) {
@@ -61,10 +61,11 @@ namespace HQEChat {
 				Int32 received = client.Receive(buffer, SocketFlags.None);
 				message = Encoding.Unicode.GetString(buffer, 0, received);
 			}
+
 			return message;
 		}
 
-		bool StopClient(bool warn = true) {
+		internal bool StopClient(bool warn = true) {
 			if (client != null) {
 
 				bool canLeave = (warn) ? SendMessage(Constantes.eoc_sequence) : false;
@@ -80,7 +81,7 @@ namespace HQEChat {
 			return false;
 		}
 
-		void InterpretCommands(string message) {
+		internal void InterpretCommands(string message) {
 			if (message.StartsWith('/')) {
 				message = message.Replace("/", "");
 
@@ -96,6 +97,25 @@ namespace HQEChat {
 					if (command == ClientCommands.quit) {
 						StopClient(true);
 					}
+				}
+			}
+		}
+
+		internal void MessageReceiver() {
+			string lastMessage = "";
+			while (true) {
+				lastMessage = ReceiveMessage();
+				Console.WriteLine(lastMessage);
+			}
+		}
+
+		internal void MessageSender() {
+			while (true) {
+				Console.Write("Votre message : ");
+				string? message = Console.ReadLine();
+
+				if (!(String.IsNullOrEmpty(message) || String.IsNullOrWhiteSpace(message))) {
+					SendMessage(message);
 				}
 			}
 		}
