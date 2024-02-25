@@ -2,6 +2,15 @@
 using System.Net.Sockets;
 using System.Text;
 
+/*
+ * Fonctionnalités du Client :
+ *	- Envoi de message : implémenté
+ *  - Envoi de messages privés : implémenté
+ *	- Connexion au serveur : implémenté
+ *	- Renseignement de l'username : implémenté
+ *	- Support des commandes : à faire
+ */
+
 namespace HQEChat {
 	class ClientCommands {
 		public static readonly string quit = "quit";
@@ -42,9 +51,11 @@ namespace HQEChat {
 			return HasBeenSent;
 		}
 
-		bool StopClient(bool warn=true) {
+		bool StopClient(bool warn = true) {
 			if (client != null) {
-				bool canLeave = (warn) ? SendMessage(Constantes.eoc_sequence) : false;
+
+				bool canLeave = ( warn ) ? SendMessage(Constantes.eoc_sequence) : false;
+
 				if (canLeave) {
 					client.Disconnect(false);
 					client.Dispose();
@@ -52,6 +63,7 @@ namespace HQEChat {
 					ClientStopped = true;
 				}
 			}
+
 			return false;
 		}
 
@@ -76,14 +88,16 @@ namespace HQEChat {
 		}
 
 		public bool Run() {
-			client = new(this.ClientEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+			client = new(ClientEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+			client.Connect(ClientEndPoint);
 
-			client.Connect(this.ClientEndPoint);
 			bool UsernameSent = SendMessage(this.Username);
+
 			if (!UsernameSent) {
 				StopClient(false);
 				return false;
 			}
+
 			while (true) {
 				Console.Write("Votre message : ");
 				string? message = Console.ReadLine();
