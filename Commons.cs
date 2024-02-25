@@ -49,7 +49,7 @@ namespace HQEChat {
 			string OutputIP = "";
 
 			IPAddress[] Adresses = Dns.GetHostAddresses(hostname);
-			int compteur = 0;
+			Int32 compteur = 0;
 			foreach (IPAddress IP in Adresses) {
 				if (IP.AddressFamily == AddressFamily.InterNetwork) {
 					OutputIP = IP.ToString();
