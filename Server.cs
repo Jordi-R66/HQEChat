@@ -55,7 +55,7 @@ namespace HQEChat {
 			ServerEndPoint = new(ServerIpObj, port);
 		}
 
-		public string ReceiveMessage(Socket handler) {
+		public string ReceiveMessage(Socket handler, Int16? clientId = null) {
 			/* Recevoir un message sans objet client */
 
 			string response = "";
@@ -69,27 +69,29 @@ namespace HQEChat {
 					response = Encoding.Unicode.GetString(buffer, 0, received);
 
 					if (response.Contains(Constantes.eom_sequence)) {
-						
+
 						handler.Send(Constantes.ackBytes);
 						response = response.Replace(Constantes.eom_sequence, "");
 						response = response.Replace(Constantes.som_sequence, "");
-						
-						if (response.Contains(Constantes.eoc_sequence)) {
-						
+
+						if (response.Contains(Constantes.eoc_sequence) && clientId != null) {
+
 							handler.Shutdown(SocketShutdown.Both);
 							handler.Close();
+
+							Console.WriteLine($"{DictConnectedClients[Convert.ToInt16(clientId)].Username} a quitté la conversation");
 
 						} else if (response.Contains(Constantes.cmd_sequence)) {
 							// Structure d'une commande :
 							//  <|CMD|> cmdId arg
-							
+
 							InterpretCommands(response.Replace(Constantes.cmd_sequence, ""));
 							response = "";
 
 						} else if (response.Contains(Constantes.prv_sequence)) {
 							// Structure d'un message privé :
 							//	<|PRV|> senderId destId message
-							
+
 							response = response.Replace($"{Constantes.prv_sequence} ", "");
 							string[] SplitResponse = response.Split(" ");
 
@@ -101,7 +103,7 @@ namespace HQEChat {
 
 								string message = "";
 
-								for (uint i = 2; i < SplitResponse.Length; i++) {
+								for (UInt32 i = 2; i < SplitResponse.Length; i++) {
 									message += $" {SplitResponse[i]}";
 								}
 
@@ -115,13 +117,13 @@ namespace HQEChat {
 			return response;
 		}
 
-		internal string ReceiveMessage(RemoteClient? remoteClient=null) {
+		internal string ReceiveMessage(RemoteClient? remoteClient = null) {
 			/* Recevoir un message avec un objet client */
 			string message = "";
 			if (remoteClient != null) {
 
 				Socket handler = remoteClient.SocketObj;
-				message = ReceiveMessage(handler);
+				message = ReceiveMessage(handler, remoteClient.ID);
 			}
 			return message;
 		}
@@ -156,8 +158,8 @@ namespace HQEChat {
 			return;
 		}
 
-		int SendMessage(string message, Socket destHandler) {
-			int bytesSent = 0;
+		Int32 SendMessage(string message, Socket destHandler) {
+			Int32 bytesSent = 0;
 
 			byte[] msg_bytes = Encoding.Unicode.GetBytes(message);
 			bytesSent = destHandler.Send(msg_bytes, SocketFlags.None);
@@ -165,8 +167,8 @@ namespace HQEChat {
 			return bytesSent;
 		}
 
-		int SendPrivate(string message, Int16 senderId, Int16 destId) {
-			int bytesSent = 0;
+		Int32 SendPrivate(string message, Int16 senderId, Int16 destId) {
+			Int32 bytesSent = 0;
 
 			if (DictConnectedClients.ContainsKey(senderId) && DictConnectedClients.ContainsKey(destId)) {
 				RemoteClient Sender = DictConnectedClients[senderId], Dest = DictConnectedClients[destId];
