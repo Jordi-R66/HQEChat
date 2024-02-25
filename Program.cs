@@ -37,7 +37,7 @@
 			string? choice_entry;
 			char choice;
 
-			char[] validChoices = ['S', 's', 'C', 's'];
+			char[] validChoices = ['S', 's', 'C', 'c'];
 
 			while (true) {
 				Console.Clear();
@@ -74,14 +74,16 @@
 					Console.Clear();
 					Console.WriteLine("Port du serveur : ");
 					port_entry = Console.ReadLine();
+
 					if ((ip_entry != "" && ip_entry != null) && !(string.IsNullOrWhiteSpace(ip_entry))) {
 						if (port_entry == "default") {
 							port_entry = "";
 							break;
 						}
+
 						if (( port_entry != null ) && ( port_entry.Length > 0 )) {
 							foreach (char c in port_entry) {
-								if (( c <= '0' ) || ( c >= '9' )) {
+								if (( c < '0' ) || ( c > '9' )) {
 									port_entry = null;
 									break;
 								}
@@ -97,6 +99,7 @@
 				}
 
 				ip = ip_entry;
+				port_entry = ( port_entry == "" ) ? $"{Constantes.PORT}" : port_entry;
 				ushort port = UInt16.Parse(port_entry);
 
 				Client NewClient = new Client(ip, port, username);
