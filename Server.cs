@@ -2,6 +2,13 @@
 using System.Net.Sockets;
 using System.Text;
 
+/*
+ * Capacités du Serveur :
+ *	- Accepter des connexions entrantes : implémenté
+ *	- Relais des messages : implémenté
+ *	- Messages privés : implémenté
+ *	- Interprétation des commandes : à faire
+ */
 
 namespace HQEChat {
 	public class Server {
@@ -48,14 +55,15 @@ namespace HQEChat {
 			ServerEndPoint = new(ServerIpObj, port);
 		}
 
-		public string? ReceiveMessage(Socket handler) {
+		public string ReceiveMessage(Socket handler) {
 			/* Recevoir un message sans objet client */
+			string response = "";
 			if (listener != null) {
 
 				byte[] buffer = new byte[1024];
 
 				Int32 received = handler.Receive(buffer, SocketFlags.None);
-				string response = Encoding.Unicode.GetString(buffer, 0, received);
+				response = Encoding.Unicode.GetString(buffer, 0, received);
 
 				if (response.Contains(Constantes.eom_sequence)) {
 					handler.Send(Constantes.ackBytes);
@@ -67,6 +75,7 @@ namespace HQEChat {
 						// Structure d'une commande :
 						//  <CMD> cmdId arg
 						InterpretCommands(response.Replace(Constantes.cmd_sequence, ""));
+						response = "";
 					} else if (response.Contains(Constantes.prv_sequence)) {
 						// Structure d'un message privé :
 						//	<PRV> senderId destId message
@@ -86,24 +95,25 @@ namespace HQEChat {
 							}
 
 							SendPrivate(message, senderId, destId);
-							return null;
+							response = "";
 						}
 					}
 
 					return response;
 				}
 			}
-			return null;
+			return response;
 		}
 
-		internal string? ReceiveMessage(RemoteClient? remoteClient=null) {
+		internal string ReceiveMessage(RemoteClient? remoteClient=null) {
 			/* Recevoir un message avec un objet client */
+			string message = "";
 			if (remoteClient != null) {
 
 				Socket handler = remoteClient.SocketObj;
-				string? message = ReceiveMessage(handler);
+				message = ReceiveMessage(handler);
 			}
-			return null;
+			return message;
 		}
 
 		private void AcceptNewConnections() {
@@ -145,7 +155,6 @@ namespace HQEChat {
 		}
 
 		int SendPrivate(string message, Int16 senderId, Int16 destId) {
-			// WIP
 			int bytesSent = 0;
 
 			if (DictConnectedClients.ContainsKey(senderId) && DictConnectedClients.ContainsKey(destId)) {
@@ -162,17 +171,26 @@ namespace HQEChat {
 
 		private void CommsManager() {
 			string? message;
+
 			while (true) {
+
 				foreach (KeyValuePair<Int16, RemoteClient> kvp in DictConnectedClients) {
 					Int16 remoteId = kvp.Key; // Clé unique associée à un client connecté
-					RemoteClient remoteClient = kvp.Value;
+					RemoteClient remoteClient = kvp.Value; // Objet de gestion du client distant
 
 					message = ReceiveMessage(remoteClient);
 
 					if (message != null && message.Length > 0) {
+
 						message = Fonctions_Utiles.RemoveSequencesFromMessage(message);
+
 						if (message.Length > 0) {
-							Console.WriteLine($" : {message}");
+							Console.WriteLine($"{remoteClient.Username} : {message}");
+							foreach (RemoteClient destClient in DictConnectedClients.Values) {
+								if (destClient.ID != remoteId) {
+									SendMessage($"{remoteClient.Username} : {message}", destClient.SocketObj);
+								}
+							}
 						}
 					}
 				}
