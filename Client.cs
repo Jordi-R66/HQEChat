@@ -6,9 +6,11 @@ using System.Text;
  * Fonctionnalités du Client :
  *	- Envoi de message : implémenté
  *  - Envoi de messages privés : implémenté
+ *  - Réception de messages : à faire
  *	- Connexion au serveur : implémenté
  *	- Renseignement de l'username : implémenté
  *	- Support des commandes : à faire
+ *	- Threading : à faire
  */
 
 namespace HQEChat {
@@ -34,7 +36,7 @@ namespace HQEChat {
 		}
 
 		bool SendMessage(string Message) {
-			bool HasBeenSent = false;
+			bool HasBeenSentAndBeenReceived = false;
 
 			if (client != null) {
 				Message = $"{Constantes.som_sequence}{Message}{Constantes.eom_sequence}";
@@ -45,16 +47,27 @@ namespace HQEChat {
 				Int32 received = client.Receive(buffer, SocketFlags.None);
 				string response = Encoding.Unicode.GetString(buffer, 0, received);
 
-				HasBeenSent = response.Contains(Constantes.ack_sequence);
+				HasBeenSentAndBeenReceived = response.Contains(Constantes.ack_sequence);
 
 			}
-			return HasBeenSent;
+			return HasBeenSentAndBeenReceived;
+		}
+
+		string ReceiveMessage() {
+			string message = "";
+
+			if (client != null) {
+				byte[] buffer = new byte[1024];
+				Int32 received = client.Receive(buffer, SocketFlags.None);
+				message = Encoding.Unicode.GetString(buffer, 0, received);
+			}
+			return message;
 		}
 
 		bool StopClient(bool warn = true) {
 			if (client != null) {
 
-				bool canLeave = ( warn ) ? SendMessage(Constantes.eoc_sequence) : false;
+				bool canLeave = (warn) ? SendMessage(Constantes.eoc_sequence) : false;
 
 				if (canLeave) {
 					client.Disconnect(false);
@@ -115,8 +128,6 @@ namespace HQEChat {
 					if (beenSent) {
 						Console.WriteLine(message);
 						Console.WriteLine("Message reçu par le serveur distant");
-					} else {
-						continue;
 					}
 				} else {
 					Console.WriteLine("Saisie invalide");
